@@ -33,18 +33,25 @@ const ranks = [
   
 //HELPER FUNCTIONS
 
-function splitHand(hand) {
+
+function splitHand(hand, arr) {
     hand = hand.split(" ").sort(function(a, b){  
         return ranks.indexOf(a.charAt(0)) - ranks.indexOf(b.charAt(0));
         });
-    let rankArray =  hand.map(ele => ele.length === 3 ? ele.slice(0, 2) : ele.slice(0, 1));
-    let suitArray = hand.map(ele => ele.length === 3 ? ele.slice(2) : ele.slice(1));
-    return {'rankArray':rankArray, 'suitArray':suitArray};
+    if (arr === 'rank') {
+    rankArray =  hand.map(ele => ele.length === 3 ? ele.slice(0, 2) : ele.slice(0, 1));
+    return rankArray;
+    } else if (arr === 'suit') {
+    suitArray = hand.map(ele => ele.length === 3 ? ele.slice(2) : ele.slice(1));
+    return suitArray;
+    } else {
+      return {'rankArray':rankArray, 'suitArray':suitArray};
+
+    }
 }
 
-  
 function isConsecutive(hand) {
-    const rankArray = splitHand(hand)['rankArray'];
+    const rankArray = splitHand(hand, 'rank');
     const ref = ranks.indexOf(rankArray[0]);
     section = rankArray.join('');
         if (rankArray[0] === '2' && /2345A/.test(section)) {
@@ -55,7 +62,7 @@ function isConsecutive(hand) {
 }
 
 function duplicates(hand, arr) {
-    let result = splitHand(hand)[arr];
+    let result = splitHand(hand, arr);
     let countDuplicates = {};
     result.reduce((acc, ele, idx) => 
     countDuplicates[result[idx]] = (countDuplicates[result[idx]]) + 1 || 1, 1);
@@ -65,34 +72,34 @@ function duplicates(hand, arr) {
 //HANDS
 
 function isRoyalFlush(hand) {
-    const royalCheck = /10JQKA/.test(splitHand(hand)['suitArray'].join(''));
-    const dupCheck = duplicates(hand, 'suitArray');
+    const royalCheck = /10JQKA/.test(splitHand(hand, 'suit').join(''));
+    const dupCheck = duplicates(hand, 'suit');
     return (royalCheck === true && 
     Object.keys(dupCheck).find(key => dupCheck[key] === 5)) ? 
         true : false;
 }
 
 function isStraightFlush(hand) {
-    const dupCheck = duplicates(hand, 'suitArray');
+    const dupCheck = duplicates(hand, 'suit');
     return (isConsecutive(hand) === true && 
     Object.keys(dupCheck).find(key => dupCheck[key] === 5)) ?
         true : false;
 }
     
 function isFourOfAKind(hand) {
-    const rankArray = splitHand(hand)['rankArray'];
+    const rankArray = splitHand(hand, 'rank');
     return (Object.keys(rankArray).find(key => rankArray[key] === 4)) ?
        true : false;
 }
 
 function isFullHouse(hand) {
-    const rankArray = splitHand(hand)['rankArray'];
+    const rankArray = splitHand(hand, 'rank');
     return (Object.keys(rankArray).find(key => rankArray[key] === 3)
     &&  pairs(hand) === 1) ? true : false;
 }
 
 function isFlush(hand) {
-    const dupCheck = duplicates(hand, 'suitArray');
+    const dupCheck = duplicates(hand, 'suit');
     if (Object.keys(dupCheck).find(key => dupCheck[key] === 5)) {
         return true;
     } else {
@@ -105,23 +112,24 @@ function isStraight(hand) {
 }
 
 function isThreeOfAKind(hand) {
-    const dupCheck = duplicates(hand, 'rankArray');
+    const dupCheck = duplicates(hand, 'rank');
     return (Object.keys(dupCheck).find(key => dupCheck[key] === 3)) ? 
     true : false;
 }
 
 function isTwoPairs(hand) {
-    const dupCheck = duplicates(hand, 'rankArray');
+    const dupCheck = duplicates(hand, 'rank');
     return (Object.keys(dupCheck).find(key => dupCheck[key] === 2).length === 2);
+    //return (pairs(hand).length === 2) ? true: false;
 }
 
 function isPair(hand) {
-    const dupCheck = duplicates(hand, 'rankArray');
+    const dupCheck = duplicates(hand, 'rank');
     return (Object.keys(dupCheck).find(key => dupCheck[key] === 2).length === 1);
 }
 
 function isHighCard(hand) {
-    const rankArray = splitHand(hand)['rankArray'];
+    const rankArray = splitHand(hand)['rank'];
     return ranks.indexOf(rankArray[rankArray.length - 1]);
 }
 
@@ -150,18 +158,18 @@ function pokerHand(hand) {
 }
 
 function compareWith(handOne, handTwo) { 
-    let regEx = /((([2-9]|10)|[JQKA])[CDHS]\s?){5}/;
-    if (regEx.test(handOne) === false && regEx.test(handTwo) === false ) {
-      alert ('Invalid Entry!');
-    } else {
-      let rankHandOne = pokerHand(handOne);
-      let rankHandTwo = pokerHand(handTwo);
-      if(rankHandOne === 900 && rankHandTwo === 900) {
-          rankHandOne += isHighCard(hand);
-          rankHandTwo =+ isHighCard(hand);
-      }
-      return rankHandOne === rankHandTwo ? Result.TIE : rankHandOne > rankHandTwo ? Result.LOSS : Result.WIN;
+  let regEx = /((([2-9]|10)|[JQKA])[CDHS]\s?){5}/;
+  if (regEx.test(handOne) === false && regEx.test(handTwo) === false ) {
+    alert ('Invalid Entry!')
+  } else {
+    let rankHandOne = pokerHand(handOne);
+    let rankHandTwo = pokerHand(handTwo);
+    if(rankHandOne === 900 && rankHandTwo === 900) {
+        rankHandOne += isHighCard(hand);
+        rankHandTwo =+ isHighCard(hand);
     }
+    return rankHandOne === rankHandTwo ? Result.TIE : rankHandOne > rankHandTwo ? Result.LOSS : Result.WIN;
   }
+}
 
  
